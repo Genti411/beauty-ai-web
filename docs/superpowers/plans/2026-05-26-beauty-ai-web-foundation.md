@@ -10,6 +10,12 @@
 
 ---
 
+## PLAN CORRECTION (recorded during execution — Next.js 16)
+
+Next.js 16 **deprecated the `middleware.ts` file convention in favor of `proxy.ts`** (the exported function is renamed `middleware` → `proxy`). Therefore, in Task 6 the root convention file is **`proxy.ts`** exporting `async function proxy(request)`, NOT `middleware.ts`. The library helper `lib/supabase/middleware.ts` (`updateSession`) is a plain module, not a Next convention file, so its name is unchanged. Behavior is identical (session refresh + guard redirect). Wherever this plan says the root `middleware.ts`, read it as `proxy.ts`.
+
+---
+
 ## Prerequisites / environment
 
 - OS: Windows 11. Node v20.18.0, npm.
