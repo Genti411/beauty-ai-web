@@ -12,6 +12,11 @@ function asNumber(v: unknown): number | undefined {
 
 // Maps a raw feed row to a NormalizedProduct, or returns null if it is missing
 // required fields or has an unknown category (the caller skips nulls).
+//
+// Note: the try-on `shade` (hex/region/finish) is intentionally NOT derived
+// here. Real affiliate feeds don't carry structured shade data, so the try-on
+// shade is curated and attached by the FeedSource after normalization (as
+// SampleFeedSource does). Adapters with shade data should set it themselves.
 export function normalizeProduct(raw: RawProduct): NormalizedProduct | null {
   const source = asString(raw.source);
   const externalId = asString(raw.external_id);
