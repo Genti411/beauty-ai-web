@@ -7,6 +7,8 @@ export type TryOnProduct = {
   name: string;
   category: string;
   imageUrl?: string;
+  // v1: one shade per product. The engine's applyLook accepts a shade LIST so a
+  // later slice (generate-a-look) can layer multiple products into one look.
   shade: ShadeData;
 };
 

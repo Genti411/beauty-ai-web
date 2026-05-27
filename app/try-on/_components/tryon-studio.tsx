@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { TryOnProduct } from '@/lib/catalog/tryon-products';
 import { LandmarkTryOnEngine } from '@/lib/tryon/landmark-engine';
 import { NoFaceError, MultipleFacesError } from '@/lib/tryon/engine';
@@ -27,9 +27,24 @@ export function TryOnStudio({
     [products, selectedId],
   );
 
+  // Revoke the result blob URL when it changes or on unmount, to avoid leaks.
+  useEffect(() => {
+    return () => {
+      if (resultUrl) URL.revokeObjectURL(resultUrl);
+    };
+  }, [resultUrl]);
+
   async function apply() {
     if (!file) {
       setStatus('Please choose a photo first.');
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      setStatus('Please choose an image file.');
+      return;
+    }
+    if (file.size > 15 * 1024 * 1024) {
+      setStatus('That image is too large (max 15 MB).');
       return;
     }
     if (!selected) {
@@ -40,10 +55,7 @@ export function TryOnStudio({
     setStatus(null);
     try {
       const blob = await engine.applyLook(file, [selected.shade]);
-      setResultUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return URL.createObjectURL(blob);
-      });
+      setResultUrl(URL.createObjectURL(blob));
     } catch (e) {
       if (e instanceof NoFaceError) {
         setStatus('No face detected — use a clear, front-facing photo.');

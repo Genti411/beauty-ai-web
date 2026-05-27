@@ -42,6 +42,7 @@ export class LandmarkTryOnEngine implements TryOnEngine {
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('2D canvas context unavailable');
     ctx.drawImage(bitmap, 0, 0);
+    bitmap.close(); // release the decoded image buffer
 
     for (const shade of shades) {
       const polys = regionPolygons(shade.region as Region, landmarks, width, height);
