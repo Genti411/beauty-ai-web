@@ -16,6 +16,9 @@ const config = {
       testMatch: ['**/__tests__/**/*.{ts,tsx}', '**/*.test.{ts,tsx}'],
       testPathIgnorePatterns: ['/node_modules/', '/tests/integration/'],
       transform: nextTransform,
+      moduleNameMapper: {
+        '^@/(.*)$': '<rootDir>/$1',
+      },
     },
     {
       displayName: 'integration',
