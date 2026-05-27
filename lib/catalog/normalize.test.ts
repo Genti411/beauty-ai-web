@@ -40,7 +40,9 @@ describe('normalizeProduct', () => {
   });
 
   it('defaults currency to USD and popularity to 0 when absent', () => {
-    const { currency, popularity_score, ...rest } = rawValid;
+    const rest: Record<string, unknown> = { ...rawValid };
+    delete rest.currency;
+    delete rest.popularity_score;
     const result = normalizeProduct(rest);
     expect(result?.currency).toBe('USD');
     expect(result?.popularityScore).toBe(0);
