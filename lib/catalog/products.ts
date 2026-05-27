@@ -13,6 +13,7 @@ export type ProductCard = {
   price?: number;
   currency: string;
   buyUrl: string;
+  hasTryOn: boolean;
 };
 
 type ProductRow = {
@@ -25,6 +26,7 @@ type ProductRow = {
   price: number | null;
   currency: string;
   buy_url: string;
+  tryon_shades: { product_id: string } | { product_id: string }[] | null;
 };
 
 export function rowToCard(row: ProductRow): ProductCard {
@@ -38,6 +40,7 @@ export function rowToCard(row: ProductRow): ProductCard {
     price: row.price ?? undefined,
     currency: row.currency,
     buyUrl: row.buy_url,
+    hasTryOn: Array.isArray(row.tryon_shades) ? row.tryon_shades.length > 0 : row.tryon_shades != null,
   };
 }
 
@@ -54,7 +57,7 @@ export async function getProducts(query: CatalogQuery): Promise<CatalogResult> {
   let q = supabase
     .from('products')
     .select(
-      'id, brand, name, category, shade_name, image_url, price, currency, buy_url',
+      'id, brand, name, category, shade_name, image_url, price, currency, buy_url, tryon_shades(product_id)',
       { count: 'exact' },
     );
 

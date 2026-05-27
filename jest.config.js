@@ -26,6 +26,9 @@ const config = {
       testMatch: ['**/tests/integration/**/*.test.ts'],
       setupFiles: ['<rootDir>/jest.setup.ws.js'],
       transform: nextTransform,
+      moduleNameMapper: {
+        '^@/(.*)$': '<rootDir>/$1',
+      },
     },
   ],
 };

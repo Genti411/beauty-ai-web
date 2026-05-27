@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { ProductCard as Product } from '@/lib/catalog/products';
 
 export function ProductCard({ product }: { product: Product }) {
@@ -18,6 +19,9 @@ export function ProductCard({ product }: { product: Product }) {
       <a href={product.buyUrl} target="_blank" rel="sponsored nofollow noopener">
         Shop
       </a>
+      {product.hasTryOn && (
+        <Link href={`/try-on?product=${product.id}`}>Try it on</Link>
+      )}
     </article>
   );
 }
