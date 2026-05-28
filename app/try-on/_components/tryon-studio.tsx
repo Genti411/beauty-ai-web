@@ -92,6 +92,9 @@ export function TryOnStudio({
     setStatus(null);
     try {
       const blob = await engine.applyLook(file!, nextPicks.map((p) => p.shade));
+      // Only advance the seed on success — otherwise an engine error would
+      // permanently skip a rank on the next Regenerate.
+      setLookSeed(seed);
       setResultUrl(URL.createObjectURL(blob));
       setPicks(nextPicks);
     } catch (e) {
@@ -141,10 +144,7 @@ export function TryOnStudio({
         </button>
         {file && (
           <button
-            onClick={() => {
-              setLookSeed(0);
-              generateLook(0);
-            }}
+            onClick={() => generateLook(0)}
             disabled={busy}
           >
             {busy ? 'Generating…' : 'Generate a look'}
@@ -152,11 +152,7 @@ export function TryOnStudio({
         )}
         {picks && file && (
           <button
-            onClick={() => {
-              const nextSeed = lookSeed + 1;
-              setLookSeed(nextSeed);
-              generateLook(nextSeed);
-            }}
+            onClick={() => generateLook(lookSeed + 1)}
             disabled={busy}
           >
             Regenerate
