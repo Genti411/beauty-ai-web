@@ -23,7 +23,7 @@ describe('getTryOnProducts', () => {
     });
     const { data, error } = await anon
       .from('products')
-      .select('id, brand, name, category, image_url, tryon_shades!inner(hex, region, finish)')
+      .select('id, brand, name, category, popularity_score, buy_url, image_url, tryon_shades!inner(hex, region, finish)')
       .order('popularity_score', { ascending: false });
     expect(error).toBeNull();
     const products: TryOnProduct[] = (data ?? []).map((r) =>
@@ -33,6 +33,8 @@ describe('getTryOnProducts', () => {
     for (const p of products) {
       expect(p.shade.hex).toMatch(/^#[0-9a-fA-F]{6}$/);
       expect(['lips', 'eyes', 'cheeks']).toContain(p.shade.region);
+      expect(typeof p.popularityScore).toBe('number');
+      expect(p.buyUrl).toMatch(/^https?:\/\//);
     }
   });
 });
