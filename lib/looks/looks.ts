@@ -87,14 +87,15 @@ export async function deleteSavedLook(lookId: string): Promise<void> {
   if (!data) return; // not found / not yours — nothing to do
   const path = (data as { image_path: string }).image_path;
 
-  const removed = await supabase.storage.from(BUCKET).remove([path]);
-  if (removed.error) throw removed.error;
-
+  // Delete the row first so the UI never shows a card pointing at a missing
+  // object. A failed storage removal afterwards only orphans bytes (best-effort).
   const { error: delError } = await supabase
     .from('saved_looks')
     .delete()
     .eq('id', lookId);
   if (delError) throw delError;
+
+  await supabase.storage.from(BUCKET).remove([path]);
 }
 
 export async function deleteAllSavedLooks(): Promise<void> {
@@ -102,14 +103,15 @@ export async function deleteAllSavedLooks(): Promise<void> {
   const { data, error } = await supabase.from('saved_looks').select('image_path');
   if (error) throw error;
   const paths = (data ?? []).map((r) => (r as { image_path: string }).image_path);
-  if (paths.length > 0) {
-    const removed = await supabase.storage.from(BUCKET).remove(paths);
-    if (removed.error) throw removed.error;
-  }
-  // RLS scopes the delete to the current user automatically.
+  // Delete the rows first (RLS scopes this to the current user); then remove the
+  // objects best-effort, so a transient storage failure can't leave broken cards.
   const { error: delError } = await supabase
     .from('saved_looks')
     .delete()
     .not('id', 'is', null);
   if (delError) throw delError;
+
+  if (paths.length > 0) {
+    await supabase.storage.from(BUCKET).remove(paths);
+  }
 }

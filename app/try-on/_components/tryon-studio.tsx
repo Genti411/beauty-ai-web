@@ -67,7 +67,8 @@ export function TryOnStudio({
       const blob = await engine.applyLook(file!, [selected.shade]);
       setResultBlob(blob);
       setResultUrl(URL.createObjectURL(blob));
-      setPicks(null);
+      // A single applied product is still a saveable look (one pick).
+      setPicks([selected]);
     } catch (e) { handleEngineError(e); } finally { setBusy(false); }
   }
 
