@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { DataRights } from '@/app/_components/data-rights';
 
 export default async function AccountPage() {
   const supabase = await createClient();
@@ -34,6 +35,7 @@ export default async function AccountPage() {
       <form action={signOut}>
         <button type="submit">Sign out</button>
       </form>
+      <DataRights />
     </main>
   );
 }
