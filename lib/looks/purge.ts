@@ -32,7 +32,13 @@ export async function purgeExpiredLooks(now: Date = new Date()): Promise<number>
   // Rows first so a transient storage failure can't leave broken records.
   const { error: delError } = await supabase.from('saved_looks').delete().in('id', ids);
   if (delError) throw delError;
-  await supabase.storage.from(BUCKET).remove(paths);
+
+  // Rows are gone; surface a storage failure so the cron response/logs flag the
+  // orphaned objects for recovery (a future purge can't find them — no row remains).
+  const { error: storageError } = await supabase.storage.from(BUCKET).remove(paths);
+  if (storageError) {
+    throw new Error(`Rows purged but storage removal failed: ${storageError.message}`);
+  }
 
   return expired.length;
 }

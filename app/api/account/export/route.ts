@@ -16,6 +16,7 @@ export async function GET(): Promise<Response> {
   const { data: looks } = await supabase
     .from('saved_looks')
     .select('id, image_path, picks, created_at')
+    .eq('user_id', user.id) // defense-in-depth; RLS already scopes this
     .order('created_at', { ascending: false });
 
   const payload = buildExportPayload(
