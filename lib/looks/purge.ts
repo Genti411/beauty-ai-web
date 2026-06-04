@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
-import { isExpired, RETENTION_DAYS } from './retention';
+import { RETENTION_DAYS } from './retention';
 
 const BUCKET = 'look-images';
+const DAY_MS = 86400_000;
 
 function admin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -18,12 +19,16 @@ function admin() {
 // Service-role (bypasses RLS) — server/cron only. Returns the number purged.
 export async function purgeExpiredLooks(now: Date = new Date()): Promise<number> {
   const supabase = admin();
-  const { data, error } = await supabase.from('saved_looks').select('id, image_path, created_at');
+  // Filter server-side by the retention cutoff so we never pull every row into
+  // memory (an index on created_at keeps this cheap as the table grows).
+  const cutoff = new Date(now.getTime() - RETENTION_DAYS * DAY_MS).toISOString();
+  const { data, error } = await supabase
+    .from('saved_looks')
+    .select('id, image_path')
+    .lt('created_at', cutoff);
   if (error) throw error;
 
-  const expired = (data ?? []).filter((r) =>
-    isExpired((r as { created_at: string }).created_at, now, RETENTION_DAYS),
-  ) as { id: string; image_path: string }[];
+  const expired = (data ?? []) as { id: string; image_path: string }[];
   if (expired.length === 0) return 0;
 
   const paths = expired.map((r) => r.image_path);

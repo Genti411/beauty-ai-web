@@ -18,9 +18,7 @@ async function handle(req: Request): Promise<Response> {
   }
 }
 
+// Vercel Cron sends a GET; expose only GET to keep the surface minimal.
 export async function GET(req: Request): Promise<Response> {
-  return handle(req);
-}
-export async function POST(req: Request): Promise<Response> {
   return handle(req);
 }
