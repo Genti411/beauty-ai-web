@@ -5,8 +5,18 @@ import { SampleFeedSource } from '../../lib/catalog/sample-feed';
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 describe('catalog ingestion + RLS', () => {
+  // Start from a clean slate so the exact-count assertion is deterministic even
+  // if a prior run (or a manual insert) left 'sample' rows behind.
+  beforeAll(async () => {
+    const admin = createClient(url, serviceKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+    await admin.from('products').delete().eq('source', 'sample');
+  });
+
   it('ingestion is idempotent (no duplicates on a second run)', async () => {
     await ingest(new SampleFeedSource());
     await ingest(new SampleFeedSource());
