@@ -16,4 +16,8 @@ describe('shouldRedirectToLogin', () => {
   it('does not redirect on the login page', () => {
     expect(shouldRedirectToLogin('/login', false)).toBe(false);
   });
+  it('redirects unauthenticated users from /looks', () => {
+    expect(shouldRedirectToLogin('/looks', false)).toBe(true);
+    expect(shouldRedirectToLogin('/looks', true)).toBe(false);
+  });
 });
